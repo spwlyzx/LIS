@@ -38,8 +38,7 @@ public class Lis extends JFrame implements ActionListener {
 
 	ButtonGroup group = new ButtonGroup();
 
-	// private int[] data = { 5, 2, 7, 9, 4, 3, 8, 1, 6, 10 }; // 1,3,6,10
-	private int[] data;
+	private int[] data = { 5, 2, 7, 9, 4, 3, 8, 1, 6, 10 }; // 2,3,6,10
 
 	private JTextArea jt = new JTextArea();
 	private JScrollPane js = new JScrollPane(jt);
@@ -93,7 +92,7 @@ public class Lis extends JFrame implements ActionListener {
 			long start = Calendar.getInstance().getTimeInMillis();
 			int[] result = calLIS(data);
 			long end = Calendar.getInstance().getTimeInMillis();
-			time.setText("LIS使用时间："+(end - start)+"ms");
+			time.setText("LIS使用时间：" + (end - start) + "ms");
 			String toWrite = "";
 			int len = result.length;
 
@@ -119,33 +118,45 @@ public class Lis extends JFrame implements ActionListener {
 	private int[] calLIS(int[] data) {
 		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		int[] Maxi = new int[data.length];
+		int[] path = new int[data.length];
 
-		Maxi[0] = data[0];
+		Maxi[0] = 0;
+		path[0] = -1;
 
 		int temp = 1;
 		for (int i = 1; i < data.length; i++) {
-			if (data[i] > Maxi[temp - 1]) {
-				Maxi[temp++] = data[i];
+			if (data[i] > data[Maxi[temp - 1]]) {
+				Maxi[temp++] = i;
+				path[i] = Maxi[temp - 2];
 			} else {
-				int pos = BinSearch(Maxi, temp, data[i]);
-				Maxi[pos] = data[i];
+				int pos = BinSearch(Maxi, data, temp, data[i]);
+				Maxi[pos] = i;
+				if (pos - 1 < 0) {
+					path[i] = -1;
+				} else {
+					path[i] = Maxi[pos - 1];
+				}
 			}
 		}
-		for (int i = 0; i < temp; i++) {
-			toReturn.add(Maxi[i]);
+		temp = Maxi[temp - 1];
+		toReturn.add(data[temp]);
+		while (path[temp] != -1) {
+			temp = path[temp];
+			toReturn.add(data[temp]);
 		}
-		int[] toreturn = new int[toReturn.size()];
-		for (int i = 0; i < toReturn.size(); i++) {
-			toreturn[i] = toReturn.get(i);
+		int len = toReturn.size();
+		int[] toreturn = new int[len];
+		for (int i = 0; i < len; i++) {
+			toreturn[i] = toReturn.get(len - 1 - i);
 		}
 		return toreturn;
 	}
 
-	private int BinSearch(int[] Maxi, int length, int x) {
+	private int BinSearch(int[] Maxi, int[] data, int length, int x) {
 		int left = 0, right = length - 1;
 		while (left <= right) {
 			int mid = (left + right) / 2;
-			if (Maxi[mid] < x) {
+			if (data[Maxi[mid]] < x) {
 				left = mid + 1;
 			} else {
 				right = mid - 1;
